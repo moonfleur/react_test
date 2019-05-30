@@ -163,6 +163,10 @@ const  NOTE = [{ id: 1, color: 'yellow', text: 'Hello, I\'m a first note!'}];
 const DEFAULT_COLOR = 'yellow';
 
 const Note = React.createClass ({
+    handleDelete() {
+      this.props.onDelete(this.props.id);
+    },
+
     render (){
         const {
             color,
@@ -172,6 +176,9 @@ const Note = React.createClass ({
 
         return (
             <div className="note" style={{backgroundColor: color}}>
+                <div>
+                    <span className="delete_note" onClick={this.handleDelete}> x </span>
+                </div>
                 { children }
             </div>
         )
@@ -220,8 +227,9 @@ const NoteEditor = React.createClass ({
                 />
 
                 {
-                    this.state.text
-                    && <button
+                    // this.state.text
+                    // &&
+                    <button
                         className="editor_button"
                         onClick={this.handleNoteAdd}
                     >
@@ -234,16 +242,36 @@ const NoteEditor = React.createClass ({
 });
 
 const NoteGrid = React.createClass ({
+    componentDidMount() {
+      this.msnry = new Masonry(this.grid, {
+          columnWidth: 300,
+          gutter: 10,
+          isFitWidth: true
+      })
+    },
+
+    componentDidUpdate(prevProps) {
+      if(prevProps.notes !== this.props.notes){
+          this.msnry.reloadItems();
+          this.msnry.layout();
+      }
+    },
+
     render (){
-        const { notes } = this.props;
+        const {
+            notes,
+            onNoteDelete
+        } = this.props;
 
         return (
-            <div className="grid">
+            <div className="grid" ref={c => this.grid = c}>
                 {
                     notes.map(note =>
                         <Note
                             key={note.id}
+                            id={note.id}
                             color={note.color}
+                            onDelete={onNoteDelete}
                         >
                             {note.text}
                         </Note>
@@ -261,10 +289,30 @@ const NotesApp = React.createClass ({
         }
     },
 
+    componentDidMount() {
+        const savedNotes = JSON.parse(localStorage.getItem('notes'));
+
+        if(savedNotes) {
+            this.setState({ notes: savedNotes})
+        }
+    },
+
+    componentDidUpdate(prevProps, prevState) {
+        if(prevState.notes !== this.state.notes) {
+            this.saveToLocalStorage();
+        }
+    },
+
     handleNoteAdd(newNote) {
       this.setState({
           notes: [newNote, ...this.state.notes]
-      }, this.saveToLocalStorage());
+      });
+    },
+
+    handleNoteDelete(noteId) {
+        this.setState({
+            notes: this.state.notes.filter(note => note.id !== noteId)
+        })
     },
 
     saveToLocalStorage() {
@@ -280,7 +328,10 @@ const NotesApp = React.createClass ({
 
                 <NoteEditor onNoteAdd={this.handleNoteAdd}/>
 
-                <NoteGrid notes={this.state.notes} />
+                <NoteGrid
+                    notes={this.state.notes}
+                    onNoteDelete={this.handleNoteDelete}
+                />
             </div>
         )
     },
