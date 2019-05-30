@@ -62,35 +62,231 @@
 //     document.getElementById('root')
 // );
 
-const HelloComponent = React.createClass ({
-    getInitialState (){
-        return {
-            name: "Noname"
-        }
+// const HelloComponent = React.createClass ({
+//     getInitialState (){
+//         return {
+//             name: "Noname"
+//         }
+//     },
+//
+//     handleChange(e){
+//         console.log(e.target.value);
+//         this.setState ({
+//             name: e.target.value
+//         });
+//     },
+//
+//     render (){
+//         return (
+//             <div>
+//                 <input
+//                     placeholder="Enter your name"
+//                     value={this.state.name}
+//                     onChange={this.handleChange}
+//                 />
+//                 <h1>Hello {this.state.name}!</h1>
+//             </div>
+//         )
+//     }
+// });
+//
+// ReactDOM.render (
+//     <HelloComponent />,
+//     document.getElementById('root')
+// );
+
+// const Counter = React.createClass ({
+//     getInitialState(){
+//         return{
+//             value: 0
+//         }
+//     },
+//
+//     handleDecrement () {
+//         this.setState({ value: this.state.value - 1});
+//     },
+//
+//     handleIncrement () {
+//         this.setState({ value: this.state.value + 1});
+//     },
+//
+//     render(){
+//         return (
+//             <div>
+//                 <button onClick={this.handleDecrement}>-</button>
+//                 <h1>{this.state.value}</h1>
+//                 <button onClick={this.handleIncrement}>+</button>
+//             </div>
+//         )
+//     }
+// });
+//
+// ReactDOM.render (
+//     <Counter />,
+//     document.getElementById('root')
+// );
+
+// const Timer = React.createClass ({
+//     getInitialState(){
+//         return{
+//             secondsElapsed: 0
+//         }
+//     },
+//
+//     componentDidMount() {
+//         this.timer = setInterval(this.tick, 1000);
+//     },
+//
+//     componentWillUnount() {
+//         clearInterval(this.timer);
+//     },
+//
+//     tick () {
+//         this.setState({ secondsElapsed: this.state.secondsElapsed + 1})
+//     },
+//
+//     render() {
+//         return (
+//             <div>
+//                 <button onClick={this.componentWillUnount}>+</button>
+//             </div>
+//         )
+//     }
+// });
+//
+// ReactDOM.render (
+//     <Timer />,
+//     document.getElementById('root')
+// );
+
+const  NOTE = [{ id: 1, color: 'yellow', text: 'Hello, I\'m a first note!'}];
+const DEFAULT_COLOR = 'yellow';
+
+const Note = React.createClass ({
+    render (){
+        const {
+            color,
+            children,
+            onDelete
+        } = this.props;
+
+        return (
+            <div className="note" style={{backgroundColor: color}}>
+                { children }
+            </div>
+        )
+    },
+});
+
+const NoteEditor = React.createClass ({
+    getInitialState() {
+      return {
+          text: ''
+      }
     },
 
-    handleChange(e){
-        console.log(e.target.value);
-        this.setState ({
-            name: e.target.value
+    handleTextChange(e) {
+        this.setState({
+            text: e.target.value
+        });
+    },
+
+    handleNoteAdd() {
+        const newNote = {
+            text: this.state.text,
+            id: Date.now(),
+            color: DEFAULT_COLOR
+        };
+        this.props.onNoteAdd(newNote);
+
+        this.resetState();
+    },
+
+    resetState() {
+        this.setState({
+            text: '',
         });
     },
 
     render (){
         return (
-            <div>
-                <input
-                    placeholder="Enter your name"
-                    value={this.state.name}
-                    onChange={this.handleChange}
+            <div className="editor">
+                <textarea
+                    rows={5}
+                    placeholder="Enter your note here..."
+                    className="editor_textarea"
+                    value={this.state.text}
+                    onChange={this.handleTextChange}
                 />
-                <h1>Hello {this.state.name}!</h1>
+
+                {
+                    this.state.text
+                    && <button
+                        className="editor_button"
+                        onClick={this.handleNoteAdd}
+                    >
+                        Add
+                    </button>
+                }
             </div>
         )
-    }
+    },
+});
+
+const NoteGrid = React.createClass ({
+    render (){
+        const { notes } = this.props;
+
+        return (
+            <div className="grid">
+                {
+                    notes.map(note =>
+                        <Note
+                            key={note.id}
+                            color={note.color}
+                        >
+                            {note.text}
+                        </Note>
+                    )
+                }
+            </div>
+        )
+    },
+});
+
+const NotesApp = React.createClass ({
+    getInitialState() {
+        return {
+            notes: []
+        }
+    },
+
+    handleNoteAdd(newNote) {
+      this.setState({
+          notes: [newNote, ...this.state.notes]
+      }, this.saveToLocalStorage());
+    },
+
+    saveToLocalStorage() {
+        const notes = JSON.stringify(this.state.notes);
+
+        localStorage.setItem('notes', notes)
+    },
+
+    render (){
+        return (
+            <div style={{textAlign: 'center'}} className="app">
+                <h1 className="app_header">NoteApp</h1>
+
+                <NoteEditor onNoteAdd={this.handleNoteAdd}/>
+
+                <NoteGrid notes={this.state.notes} />
+            </div>
+        )
+    },
 });
 
 ReactDOM.render (
-    <HelloComponent />,
+    <NotesApp />,
     document.getElementById('root')
 );

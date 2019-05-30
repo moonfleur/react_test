@@ -71,3 +71,46 @@ i {
 .tweetText {
     margin: 0 0 10px 0;
 }
+
+/*Notes*/
+body {
+    background-color: #d6d5d5;
+}
+
+.note {
+    background-color: yellow;
+    box-shadow: 0px 2px 7px -1px rgba(0,0,0,0.36);
+    width: 300px;
+    padding-top: 15px;
+    height: 30px;
+    margin: 20px 10px;
+    float: left;
+}
+
+.editor_button {
+    background-color: green;
+    border: none;
+    width: 100px;
+    height: 35px;
+    border-radius: 23px;
+    color: white;
+    position: absolute;
+    top: 145px;
+    right: 320px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+}
+
+.editor_button:hover {
+    transition: all 0.4s ease;
+    background-color: #005100;
+}
+
+.editor_textarea {
+    width: 500px;
+    height: 100px;
+    resize: none;
+    box-shadow: 0 2px 7px -1px rgba(0,0,0,0.36);
+    border: none;
+    padding: 10px;
+}
